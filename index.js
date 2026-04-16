@@ -1,70 +1,56 @@
 // index.js
 const weatherApi = "https://api.weather.gov/alerts/active?area="
 
-// Your code here! 
+// Your code here!
+// Select DOM elements
+const input = document.getElementById("state-input")
+const button = document.getElementById("fetch-alerts")
+const displayDiv = document.getElementById("alerts-display")
+const errorDiv = document.getElementById("error-message")
 
-async function fetchWeather(state) {
-    const response = await fetch(weatherApi + state);
-    const data = await response.json();
-    return data;
-}
+// Fetch function using async/await
+async function getWeather(state) {
+  try {
+    // Clear previous error
+    errorDiv.textContent = ""
+    errorDiv.classList.add("hidden")
 
+    // Fetch data
+    const response = await fetch(`${weatherApi}${state}`)
+    const data = await response.json()
 
-function displayWeather(data, state) {
-    const results = document.getElementById("weather-results");
-    results.innerHTML = "";
+    // Clear previous display
+    displayDiv.innerHTML = ""
 
-    const alerts = data.features;
+    // Get alerts
+    const alerts = data.features
 
-    const title = document.createElement("h2");
-    title.textContent =
-        `Current watches, warnings, and advisories for ${state}: ${alerts.length}`;
+    // Display summary (IMPORTANT: tests expect this exact format)
+    const summary = document.createElement("h2")
+    summary.textContent = `Weather Alerts: ${alerts.length}`
+    displayDiv.appendChild(summary)
 
-    results.appendChild(title);
-
-    const ul = document.createElement("ul");
-
+    // Display each alert headline
     alerts.forEach(alert => {
-        const li = document.createElement("li");
-        li.textContent = alert.properties.headline;
-        ul.appendChild(li);
-    });
+      const p = document.createElement("p")
+      p.textContent = alert.properties.headline
+      displayDiv.appendChild(p)
+    })
 
-    results.appendChild(ul);
+  } catch (error) {
+    // Show error message
+    errorDiv.textContent = error.message
+    errorDiv.classList.remove("hidden")
+  }
 }
 
+// Add event listener
+button.addEventListener("click", () => {
+  const state = input.value.trim().toUpperCase()
 
-function showError(message) {
-    const errorBox = document.getElementById("error-message");
-    const results = document.getElementById("weather-results");
+  // Call fetch function
+  getWeather(state)
 
-    results.innerHTML = "";
-    errorBox.style.display = "block";
-    errorBox.textContent = message;
-}
-
-
-const button = document.getElementById("get-weather");
-
-if (button) {
-    button.addEventListener("click", async () => {
-        const input = document.getElementById("state");
-        const errorBox = document.getElementById("error-message");
-        const results = document.getElementById("weather-results");
-
-        const state = input.value.trim().toUpperCase();
-
-        try {
-            errorBox.textContent = "";
-            errorBox.style.display = "none";
-
-            const data = await fetchWeather(state);
-            displayWeather(data, state);
-
-            input.value = "";
-
-        } catch (error) {
-            showError(error.message);
-        }
-    });
-}
+  // Clear input (TEST expects this)
+  input.value = ""
+})
