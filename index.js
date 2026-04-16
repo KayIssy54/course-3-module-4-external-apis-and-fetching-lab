@@ -11,26 +11,21 @@ const errorDiv = document.getElementById("error-message")
 // Fetch function using async/await
 async function getWeather(state) {
   try {
-    // Clear previous error
+    
     errorDiv.textContent = ""
     errorDiv.classList.add("hidden")
 
-    // Fetch data
     const response = await fetch(`${weatherApi}${state}`)
     const data = await response.json()
 
-    // Clear previous display
     displayDiv.innerHTML = ""
 
-    // Get alerts
     const alerts = data.features
 
-    // Display summary (IMPORTANT: tests expect this exact format)
     const summary = document.createElement("h2")
     summary.textContent = `Weather Alerts: ${alerts.length}`
     displayDiv.appendChild(summary)
 
-    // Display each alert headline
     alerts.forEach(alert => {
       const p = document.createElement("p")
       p.textContent = alert.properties.headline
@@ -43,14 +38,11 @@ async function getWeather(state) {
     errorDiv.classList.remove("hidden")
   }
 }
-
-// Add event listener
 button.addEventListener("click", () => {
   const state = input.value.trim().toUpperCase()
 
-  // Call fetch function
   getWeather(state)
 
-  // Clear input (TEST expects this)
+
   input.value = ""
 })
